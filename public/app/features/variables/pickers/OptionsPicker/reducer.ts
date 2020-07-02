@@ -51,6 +51,8 @@ const optionsToRecord = (options: VariableOption[]): Record<string, VariableOpti
   return options.reduce((all: Record<string, VariableOption>, option) => {
     if (isString(option.value)) {
       all[option.value] = option;
+    } else if (Array.isArray(option.value)) {
+      all[option.value.join(' + ')] = option;
     }
     return all;
   }, {});
@@ -66,11 +68,14 @@ const updateOptions = (state: OptionsPickerState): OptionsPickerState => {
   state.selectedValues = Object.values(selectedOptions);
 
   state.options = state.options.map(option => {
-    if (!isString(option.value)) {
-      return option;
+    let value;
+    if (Array.isArray(option.value)) {
+      value = option.value.join(' + ');
+    } else {
+      value = option.value;
     }
 
-    const selected = !!selectedOptions[option.value];
+    const selected = !!selectedOptions[value];
 
     if (option.selected === selected) {
       return option;
